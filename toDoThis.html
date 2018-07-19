@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!-- <script src="../vue.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<style>
+    body {
+        text-align: center;
+        background-color: skyblue;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+        width: 500px;
+        margin: 0 auto;
+    }
+
+    li {
+        display: flex;
+        justify-content: space-between;
+        font-size: 22px;
+        margin-top: 15px;
+
+    }
+
+    span.active {
+        text-decoration: line-through;
+        color: red;
+    }
+    button {
+        border-radius: 50%;
+        border: none;
+        width: 20px;
+        height: 20px;
+    }
+</style>
+
+<body>
+    <h2>代办事项</h2>
+    <div class="box">
+        <h3>总数：{{list.length}}-----已完成{{okNum}}</h3>
+        <input type="text" placeholder="请输入待办事项" v-model="someThing">
+        <input type="button" value="确定" @click="add">
+        <ul>
+            <li v-for="(item, index) in list">
+                <span v-on:click="dothis(index)" v-bind:class="{ active: item.isOk }">{{index+1}}{{item.name}}</span>
+                <button v-on:click.stop="remove(index)">X</button>
+            </li>
+        </ul>
+    </div>
+</body>
+<script>
+    //读取保存的数据
+    let list = window.localStorage.getItem('list');
+    if (list) {
+        //string转成对象（数组）
+        list = JSON.parse(list);
+    }else{
+         list = [{
+        name: '买菜',
+        isOk: false
+    }, {
+        name: '选菜',
+        isOk: false
+    }, {
+        name: '做菜',
+        isOk: false
+    }, {
+        name: '吃菜',
+        isOk: false
+    }]
+    }
+   
+    let app = new Vue({
+        el: '.box',
+        data: {
+            someThing: "",
+            list
+        },
+        methods: {
+            //新增待办事项
+            add() {
+                //取值
+                //增加到数组中
+                this.list.push({
+                    name: this.someThing,
+                    isOk: false
+                })
+                this.saveData();
+            },
+            dothis(index) {
+                this.list[index].isOk = !this.list[index].isOk;
+                this.saveData();
+            },
+            remove(index) {
+                this.list.splice(index, 1);
+                this.saveData();
+            },
+            //设置localStorage
+            saveData(){
+                window.localStorage.setItem('list',JSON.stringify(app.list));
+            }
+        },
+        computed: {
+            okNum() {
+                //计算isOk为true的总数
+                let num = 0;
+                for (let i = 0; i < this.list.length; i++) {
+                    if (this.list[i].isOk) {
+                        num++;
+                    }
+                };
+                return num;
+            }
+        }
+    })
+</script>
+
+</html>
